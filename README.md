@@ -66,8 +66,8 @@ Purple agents being evaluated must:
 2. Respond with a prediction (recommended format):
 ```json
 {
-  "prediction": 1,
-  "justification": "Both questions ask about learning Python effectively"
+  "justification": "Both questions ask about learning Python effectively",
+  "prediction": 1
 }
 ```
 
@@ -89,24 +89,13 @@ The green agent returns comprehensive evaluation metrics:
   "assessment_type": "quora_deduplication",
   "sample_size": 100,
   "evaluated_pairs": 98,
-  "accuracy": 0.8571,
-  "correct_predictions": 84,
-  "incorrect_predictions": 14,
-  "confusion_matrix": {
-    "true_positives": 42,
-    "true_negatives": 42,
-    "false_positives": 7,
-    "false_negatives": 7
-  },
+  "accuracy": 0.89,
   "metrics": {
-    "precision": 0.8571,
-    "recall": 0.8571,
-    "f1_score": 0.8571
+    "precision": 0.857,
+    "recall": 0.821,
+    "f1_score": 0.839
   },
   "execution_time_seconds": 45.2,
-  "error_rate": 0.02,
-  "errors_count": 2,
-  "sample_errors": [...]
 }
 ```
 
