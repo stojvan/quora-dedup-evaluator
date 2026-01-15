@@ -19,21 +19,28 @@ def main():
     parser.add_argument("--port", type=int, default=9009, help="Port to bind the server")
     parser.add_argument("--card-url", type=str, help="URL to advertise in the agent card")
     args = parser.parse_args()
-
-    # Fill in your agent card
-    # See: https://a2a-protocol.org/latest/tutorials/python/3-agent-skills-and-card/
     
     skill = AgentSkill(
-        id="",
-        name="",
-        description="",
-        tags=[],
-        examples=[]
+        id="quora_deduplication_eval",
+        name="Quora Question Pair Deduplication Evaluation",
+        description="Evaluates an agent's ability to identify duplicate question pairs from Quora. The agent receives pairs of questions and must predict whether they are semantically equivalent (duplicate) or different (not duplicate).",
+        tags=["evaluation", "nlp", "deduplication", "question-answering"],
+        examples=["""
+{
+  "participants": {
+    "dedup_predictor": "https://dedup.example.com:9010"
+  },
+  "config": {
+    "sample_size": 100,
+    "random_seed": 777
+  }
+}
+"""]
     )
 
     agent_card = AgentCard(
-        name="",
-        description="",
+        name="Quora Deduplication Evaluator",
+        description="Green agent that evaluates purple agents on the Quora Question Pairs deduplication task. Sends pairs of questions to purple agents, collects binary predictions, and reports accuracy metrics.",
         url=args.card_url or f"http://{args.host}:{args.port}/",
         version='1.0.0',
         default_input_modes=['text'],

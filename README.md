@@ -1,35 +1,114 @@
-# A2A Agent Template
+# Quora Deduplication Green Agent
 
-A minimal template for building [A2A (Agent-to-Agent)](https://a2a-protocol.org/latest/) green agents compatible with the [AgentBeats](https://agentbeats.dev) platform.
+A green agent that evaluates purple agents on the Quora Question Pairs deduplication task. Built using the [A2A (Agent-to-Agent)](https://a2a-protocol.org/latest/) protocol and compatible with the [AgentBeats](https://agentbeats.dev) platform.
+
+## Overview
+
+This green agent tests a purple agent's ability to identify duplicate question pairs from the Quora Question Pairs dataset. The agent:
+- Sends pairs of questions to a purple agent
+- Collects binary predictions (1 = duplicate, 0 = not duplicate)
+- Compares predictions against ground truth labels
+- Reports comprehensive accuracy metrics
+
+## Dataset
+
+The agent uses the [Quora Question Pairs dataset](https://huggingface.co/datasets/quora) from Hugging Face, which contains ~400K question pairs labeled as duplicates or non-duplicates. The dataset is downloaded and cached automatically on first run.
 
 ## Project Structure
 
 ```
 src/
-├─ server.py      # Server setup and agent card configuration
-├─ executor.py    # A2A request handling
-├─ agent.py       # Your agent implementation goes here
-└─ messenger.py   # A2A messaging utilities
+├─ server.py       # Server setup and agent card configuration
+├─ executor.py     # A2A request handling
+├─ agent.py        # Core evaluation logic
+├─ messenger.py    # A2A messaging utilities
+├─ data_loader.py  # Dataset loading and sampling
+└─ schemas.py      # Pydantic models for requests/responses
 tests/
-└─ test_agent.py  # Agent tests
-Dockerfile        # Docker configuration
-pyproject.toml    # Python dependencies
-.github/
-└─ workflows/
-   └─ test-and-publish.yml # CI workflow
+└─ test_agent.py   # Agent tests
+Dockerfile         # Docker configuration
+pyproject.toml     # Python dependencies
 ```
 
-## Getting Started
+## Assessment Request Format
 
-1. **Create your repository** - Click "Use this template" to create your own repository from this template
+The green agent expects requests in the following format:
 
-2. **Implement your agent** - Add your agent logic to [`src/agent.py`](src/agent.py)
+```json
+{
+  "participants": {
+    "deduplication_agent": "http://purple-agent:9010"
+  },
+  "config": {
+    "sample_size": 100,
+    "random_seed": 777
+  }
+}
+```
 
-3. **Configure your agent card** - Fill in your agent's metadata (name, skills, description) in [`src/server.py`](src/server.py)
+### Configuration Parameters
 
-4. **Write your tests** - Add custom tests for your agent in [`tests/test_agent.py`](tests/test_agent.py)
+- **sample_size** (required): Number of question pairs to evaluate (1-1000)
+- **random_seed** (optional): Integer seed for reproducible sampling
 
-For a concrete example of implementing a green agent using this template, see this [draft PR](https://github.com/RDI-Foundation/green-agent-template/pull/3).
+## Purple Agent Requirements
+
+Purple agents being evaluated must:
+
+1. Accept question pairs as JSON:
+```json
+{
+  "question1": "What is the best way to learn Python?",
+  "question2": "How can I learn Python effectively?"
+}
+```
+
+2. Respond with a prediction (recommended format):
+```json
+{
+  "prediction": 1,
+  "justification": "Both questions ask about learning Python effectively"
+}
+```
+
+Or minimal format:
+```json
+{
+  "prediction": 0
+}
+```
+
+The agent also accepts plain integer responses (`"1"` or `"0"`) for compatibility.
+
+## Results Format
+
+The green agent returns comprehensive evaluation metrics:
+
+```json
+{
+  "assessment_type": "quora_deduplication",
+  "sample_size": 100,
+  "evaluated_pairs": 98,
+  "accuracy": 0.8571,
+  "correct_predictions": 84,
+  "incorrect_predictions": 14,
+  "confusion_matrix": {
+    "true_positives": 42,
+    "true_negatives": 42,
+    "false_positives": 7,
+    "false_negatives": 7
+  },
+  "metrics": {
+    "precision": 0.8571,
+    "recall": 0.8571,
+    "f1_score": 0.8571
+  },
+  "execution_time_seconds": 45.2,
+  "error_rate": 0.02,
+  "errors_count": 2,
+  "sample_errors": [...]
+}
+```
 
 ## Running Locally
 
